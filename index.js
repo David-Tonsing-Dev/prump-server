@@ -11,12 +11,14 @@ const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 8001;
 
 const userRoutes = require("./routes/userRoutes");
+const rewardRoutes = require("./routes/rewardRoutes");
 const User = require("./models/userModel");
 
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
+app.use("/api/reward", rewardRoutes);
 
 app.get("/test", (req, res) => {
   return res.json("This is testing!!!");
