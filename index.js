@@ -8,7 +8,7 @@ const cors = require("cors");
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const PORT = 8001 || process.env.PORT;
+const PORT = process.env.PORT || 8001;
 
 const userRoutes = require("./routes/userRoutes");
 const User = require("./models/userModel");
