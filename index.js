@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 8001;
 
 const userRoutes = require("./routes/userRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
+const pointRoutes = require("./routes/pointRoutes");
 const User = require("./models/userModel");
 
 app.use(cors());
@@ -19,6 +20,7 @@ app.use(express.json());
 
 app.use("/api/users", userRoutes);
 app.use("/api/reward", rewardRoutes);
+app.use("/api/points", pointRoutes);
 
 app.get("/test", (req, res) => {
   return res.json("This is testing!!!");

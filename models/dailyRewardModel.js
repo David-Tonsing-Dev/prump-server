@@ -33,6 +33,22 @@ const dailyRewardSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    everyDataReward: [
+      {
+        day: {
+          type: Number,
+          default: 1,
+        },
+        rewardCoins: {
+          type: Number,
+          default: 500,
+        },
+        claim: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

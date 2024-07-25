@@ -2,9 +2,7 @@ const User = require("../models/userModel");
 
 const registerUser = async (req, res) => {
   try {
-    console.log("=====1");
     const { userId, userName } = req.body;
-    console.log("userId, userName", userId, userName);
 
     if (!userId || !userName)
       return res
