@@ -21,6 +21,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/reward", rewardRoutes);
 app.use("/api/points", pointRoutes);
+// app.use("/api")
 
 app.get("/test", (req, res) => {
   return res.json("This is testing!!!");

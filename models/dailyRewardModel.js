@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const dailyRewardSchema = mongoose.Schema(
   {
-    // userId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    // },
     chatId: {
       type: String,
     },
@@ -15,6 +11,10 @@ const dailyRewardSchema = mongoose.Schema(
     youtubeLink: {
       type: Boolean,
       default: false,
+    },
+    youTubeCoins: {
+      type: Number,
+      default: 100000,
     },
     DailyCoin: {
       type: Number,
@@ -26,12 +26,23 @@ const dailyRewardSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    twitterId: {
+      type: String,
+    },
+    twitterCoins: {
+      type: Number,
+      default: 10000,
+    },
     telegramLink: {
       type: String,
     },
     telegramLinkCheck: {
       type: Boolean,
       default: false,
+    },
+    telegramCoins: {
+      type: Number,
+      default: 10000,
     },
     everyDataReward: [
       {
