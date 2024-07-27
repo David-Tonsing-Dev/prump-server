@@ -18,9 +18,6 @@ const getPoints = async (req, res) => {
       .sort({ coins: -1 })
       .limit(100);
 
-    if (getTopRank.length <= 0)
-      return res.status(400).json({ status: false, message: "No data found!" });
-
     return res.status(200).json({
       status: true,
       rankList: getTopRank,

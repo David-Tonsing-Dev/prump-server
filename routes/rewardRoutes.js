@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const authMiddleware = require("../middlewares/authMiddleware");
 const {
   subscribeTelegram,
   checkXUser,
@@ -8,9 +9,9 @@ const {
   getAllRewardDetail,
 } = require("../controllers/rewardController");
 
-router.post("/subcribe/telegram/:chatId", subscribeTelegram);
-router.post("/check/twitter/:chatId", checkXUser);
-router.get("/check/subscribe/twitter/:chatId", checkXSubscribe);
-router.get("/get/detail/:coinId", getAllRewardDetail);
+router.post("/subcribe/telegram", authMiddleware, subscribeTelegram);
+router.post("/check/twitter", authMiddleware, checkXUser);
+router.get("/check/subscribe/twitter", authMiddleware, checkXSubscribe);
+router.get("/get/detail", authMiddleware, getAllRewardDetail);
 
 module.exports = router;

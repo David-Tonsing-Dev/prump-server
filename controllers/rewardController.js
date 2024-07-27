@@ -4,7 +4,8 @@ const User = require("../models/userModel");
 
 const subscribeTelegram = async (req, res) => {
   try {
-    const { chatId } = req.params;
+    // const { chatId } = req.params;
+    const chatId = req.chatId;
     const { telegramConfirm } = req.body;
 
     if (!chatId || chatId === "undefined")
@@ -12,16 +13,23 @@ const subscribeTelegram = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Undefined chatId!" });
 
+    const checkUserReward = await Reward.findOne({
+      chatId,
+      telegramLinkCheck: true,
+    });
+
+    if (checkUserReward) {
+      return res.status(200).json({ status: true, message: "Coin rewarded!" });
+    }
+
     const checkReward = await Reward.findOneAndUpdate(
-      { chatId },
+      { chatId, telegramLinkCheck: false },
       { telegramLinkCheck: telegramConfirm },
       { new: true }
     );
 
     if (checkReward) {
-      return res
-        .status(200)
-        .json({ status: 200, message: "Updated reward already exist" });
+      return res.status(200).json({ status: true, message: "Coin rewarded!" });
     }
 
     const updateReward = new Reward({
@@ -30,6 +38,20 @@ const subscribeTelegram = async (req, res) => {
     });
 
     await updateReward.save();
+
+    if (telegramConfirm) {
+      const updateUserCoin = await User.findOneAndUpdate(
+        { userId: chatId, telegramLinkCheck: true },
+        {
+          $inc: { coins: checkReward.telegramCoins },
+        },
+        { new: true }
+      );
+      if (!updateUserCoin)
+        return res
+          .status(400)
+          .json({ status: false, message: "Could not update reward!" });
+    }
 
     return res.status(200).json({ status: 200, message: "Updated reward!" });
   } catch (err) {
@@ -43,7 +65,7 @@ const subscribeTelegram = async (req, res) => {
 
 const checkXUser = async (req, res) => {
   try {
-    const { chatId } = req.params;
+    const chatId = req.chatId;
     const { userName } = req.body;
 
     const response = await axios.post(
@@ -96,7 +118,7 @@ const checkXUser = async (req, res) => {
 };
 
 const checkXSubscribe = async (req, res) => {
-  const { chatId } = req.params;
+  const chatId = req.chatId;
 
   try {
     if (!chatId || chatId === "undefined")
@@ -168,7 +190,7 @@ const checkXSubscribe = async (req, res) => {
 
 const getAllRewardDetail = async (req, res) => {
   try {
-    const { coinId } = req.params;
+    const coinId = req.chatId;
 
     const getReward = await Reward.findOne({ chatId: coinId });
 
