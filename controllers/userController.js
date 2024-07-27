@@ -31,7 +31,7 @@ const registerUser = async (req, res) => {
     const token = jwt.sign(
       { chatId: checkUser.userId },
       process.env.JWT_SECRET_KEY,
-      { expiresIn: "4d" }
+      { expiresIn: "6d" }
     );
 
     return res.status(200).json({
