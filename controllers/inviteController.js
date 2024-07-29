@@ -13,7 +13,7 @@ const generateLink = async (req, res) => {
     if (checkInviteLink)
       return res.status(200).json({
         status: true,
-        referrelLink: `https://t.me/${channelId}/start?startapp=${checkInviteLink.referralCode}`,
+        referrelLink: `https://t.me/${channelId}?start=${checkInviteLink.referralCode}`,
       });
 
     const referralCode = generateUniqueCode(chatId);
@@ -27,7 +27,7 @@ const generateLink = async (req, res) => {
 
     return res.status(200).json({
       status: true,
-      referrelLink: `https://t.me/${channelId}/start?startapp=${checkInviteLink.referralCode}`,
+      referrelLink: `https://t.me/${channelId}?start=${checkInviteLink.referralCode}`,
     });
   } catch (err) {
     return res.status(500).json({
