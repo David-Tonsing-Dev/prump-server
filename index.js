@@ -14,6 +14,7 @@ const userRoutes = require("./routes/userRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
 const pointRoutes = require("./routes/pointRoutes");
 const User = require("./models/userModel");
+const inviteRoutes = require("./routes/inviteRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/reward", rewardRoutes);
 app.use("/api/points", pointRoutes);
+app.use("/api/invite", inviteRoutes);
 // app.use("/api")
 
 app.get("/test", (req, res) => {
