@@ -8,7 +8,7 @@ const generateLink = async (req, res) => {
 
     let checkInviteLink = await Invite.findOne({ chatId });
 
-    let channelId = "axogame_bot";
+    let channelId = "beast_combatBot";
 
     if (checkInviteLink)
       return res.status(200).json({
