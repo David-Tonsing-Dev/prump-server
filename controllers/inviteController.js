@@ -104,6 +104,16 @@ const inviteFriendClaim = async (req, res) => {
   try {
     const chatId = req.chatId;
 
+    const checkInviteRedeemed = await Reward.findOne({
+      chatId,
+      inviteFriend: true,
+    });
+
+    if (checkInviteRedeemed)
+      return res
+        .status(200)
+        .json({ status: false, message: "Already redeemed!" });
+
     const checkInvite = await Invite.findOne({ chatId });
 
     const checkInviteJoin = checkInvite.redeemedBy.filter(
@@ -116,6 +126,8 @@ const inviteFriendClaim = async (req, res) => {
         .json({ status: false, message: "Task not completed!" });
 
     await User.findOneAndUpdate({ userId: chatId }, { $inc: { coins: 25000 } });
+
+    await Reward.findOneAndUpdate({ chatId }, { $set: { inviteFriend: true } });
 
     return res.status(200).json({ status: true, message: "Task completed" });
   } catch (err) {}

@@ -25,8 +25,8 @@ const registerUser = async (req, res) => {
           },
         });
 
-        const isRedeemed = checkInvite.some(
-          (item) => item.redeemedBy[0].rewarded
+        const isRedeemed = checkInvite[0].redeemedBy.some(
+          (item) => item.chatId === userId && item.rewarded
         );
 
         if (!isRedeemed) {
