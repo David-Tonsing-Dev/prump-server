@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const Invite = require("../models/inviteModels");
 
 const registerUser = async (req, res) => {
   try {
-    const { userId, userName } = req.body;
+    const { userId, userName, referralCode } = req.body;
 
     if (!userId || !userName)
       return res
@@ -15,18 +16,58 @@ const registerUser = async (req, res) => {
     if (!checkUser) {
       checkUser = new User({ userId, userName });
       await checkUser.save();
+
+      if (referralCode || referralCode !== "") {
+        const referralChatId = referralCode.split("_")[1];
+        let checkInvite = await Invite.find({
+          redeemedBy: {
+            $elemMatch: { chatId: userId },
+          },
+        });
+
+        console.log("checkInvite", checkInvite);
+
+        const isRedeemed = checkInvite.some(
+          (item) => item.redeemedBy[0].rewarded
+        );
+
+        console.log("isRedeemed", isRedeemed);
+
+        if (!isRedeemed) {
+          const updateInvitee = await Invite.findOneAndUpdate(
+            {
+              chatId: referralChatId,
+              referralCode,
+              "redeemedBy.chatId": userId,
+            },
+            {
+              $set: { "redeemedBy.$.rewarded": true },
+            },
+            { new: true }
+          );
+
+          console.log("updateInvitee", updateInvitee);
+
+          checkUser = await User.findOneAndUpdate(
+            { userId },
+            { $inc: { coins: 5000 } },
+            { new: true }
+          );
+
+          const updateCoin = await User.findOneAndUpdate(
+            { userId: referralChatId },
+            { $inc: { coins: 25000 } },
+            { new: true }
+          );
+
+          if (!updateCoin)
+            return res.status(400).json({
+              status: false,
+              message: "Something went wrong in updating referral coins!",
+            });
+        }
+      }
     }
-
-    // if (checkUser) {
-    //   return res.status(200).json({
-    //     status: true,
-    //     user: { userId, userName, coins: checkUser.coins },
-    //     message: "Already exist!",
-    //   });
-    // }
-
-    // const newUser = new User({ userId, userName });
-    // await newUser.save();
 
     const token = jwt.sign(
       { chatId: checkUser.userId },

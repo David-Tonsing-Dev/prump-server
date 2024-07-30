@@ -16,7 +16,6 @@ const inviteSchema = mongoose.Schema(
       {
         chatId: {
           type: String,
-          unique: true,
           default: null,
         },
         rewarded: {

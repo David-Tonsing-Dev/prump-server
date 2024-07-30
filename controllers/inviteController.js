@@ -51,14 +51,23 @@ const trackReferral = async (req, res) => {
       },
     });
 
-    if (checkInvite)
-      return res
-        .status(200)
-        .json({ status: false, message: "Already redeemed reward!" });
+    if (checkInvite) {
+      if (checkInvite.redeemedBy.rewarded)
+        return res
+          .status(200)
+          .json({ status: false, message: "Already redeemed reward!" });
+
+      if (!checkInvite.redeemedBy.rewarded) {
+        return res.status(200).json({
+          status: false,
+          message: `Already referred from ${referralCode}!`,
+        });
+      }
+    }
 
     const newEntry = {
       chatId: userId,
-      rewarded: true,
+      rewarded: false,
       coinRewarded: 25000,
     };
 
@@ -76,23 +85,11 @@ const trackReferral = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Something went wrong in updating!" });
 
-    const incrementCoins = newEntry.coinRewarded;
-
-    const updateCoin = await User.findOneAndUpdate(
-      { userId: chatId },
-      { $inc: { coins: incrementCoins } },
-      { new: true }
-    );
-
-    if (!updateCoin)
-      return res.status(400).json({
-        status: false,
-        message: "Something went wrong in updating referral coins!",
-      });
-
-    return res
-      .status(200)
-      .json({ status: true, message: "Referred link reward", updateCoin });
+    return res.status(200).json({
+      status: true,
+      message: "Referred user added!",
+      updateInvite,
+    });
   } catch (err) {
     return res.status(500).json({
       status: false,
