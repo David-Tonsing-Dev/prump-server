@@ -25,13 +25,9 @@ const registerUser = async (req, res) => {
           },
         });
 
-        console.log("checkInvite", checkInvite);
-
         const isRedeemed = checkInvite.some(
           (item) => item.redeemedBy[0].rewarded
         );
-
-        console.log("isRedeemed", isRedeemed);
 
         if (!isRedeemed) {
           const updateInvitee = await Invite.findOneAndUpdate(
@@ -45,8 +41,6 @@ const registerUser = async (req, res) => {
             },
             { new: true }
           );
-
-          console.log("updateInvitee", updateInvitee);
 
           checkUser = await User.findOneAndUpdate(
             { userId },

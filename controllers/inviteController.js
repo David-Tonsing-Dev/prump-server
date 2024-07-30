@@ -1,5 +1,6 @@
 const Invite = require("../models/inviteModels");
 const User = require("../models/userModel");
+const Reward = require("../models/dailyRewardModel");
 const generateUniqueCode = require("../constant/uniqueCode");
 
 const generateLink = async (req, res) => {
@@ -99,7 +100,29 @@ const trackReferral = async (req, res) => {
   }
 };
 
+const inviteFriendClaim = async (req, res) => {
+  try {
+    const chatId = req.chatId;
+
+    const checkInvite = await Invite.findOne({ chatId });
+
+    const checkInviteJoin = checkInvite.redeemedBy.filter(
+      (item) => item.rewarded
+    );
+
+    if (checkInviteJoin.length < 3)
+      return res
+        .status(200)
+        .json({ status: false, message: "Task not completed!" });
+
+    await User.findOneAndUpdate({ userId: chatId }, { $inc: { coins: 25000 } });
+
+    return res.status(200).json({ status: true, message: "Task completed" });
+  } catch (err) {}
+};
+
 module.exports = {
   generateLink,
   trackReferral,
+  inviteFriendClaim,
 };

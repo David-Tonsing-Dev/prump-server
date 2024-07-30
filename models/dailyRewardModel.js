@@ -60,6 +60,10 @@ const dailyRewardSchema = mongoose.Schema(
         },
       },
     ],
+    inviteFriend: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
