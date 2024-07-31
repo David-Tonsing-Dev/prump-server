@@ -1,6 +1,7 @@
 const Invite = require("../models/inviteModels");
 const User = require("../models/userModel");
 const Reward = require("../models/dailyRewardModel");
+const dailyReward = require("../constant/dailyReward");
 const generateUniqueCode = require("../constant/uniqueCode");
 
 const generateLink = async (req, res) => {
@@ -43,7 +44,6 @@ const generateLink = async (req, res) => {
 const trackReferral = async (req, res) => {
   try {
     const { userId, referralCode } = req.body;
-    const chatId = referralCode.split("_")[1];
 
     const checkInvite = await Invite.findOne({
       referralCode: referralCode,
@@ -106,10 +106,14 @@ const inviteFriendClaim = async (req, res) => {
 
     const checkInviteRedeemed = await Reward.findOne({
       chatId,
-      inviteFriend: true,
     });
 
-    if (checkInviteRedeemed)
+    if (!checkInviteRedeemed) {
+      const newReward = new Reward({ chatId });
+      await newReward.save();
+    }
+
+    if (checkInviteRedeemed.inviteFriend.redeem)
       return res
         .status(200)
         .json({ status: false, message: "Already redeemed!" });
@@ -125,9 +129,15 @@ const inviteFriendClaim = async (req, res) => {
         .status(200)
         .json({ status: false, message: "Task not completed!" });
 
-    await User.findOneAndUpdate({ userId: chatId }, { $inc: { coins: 25000 } });
+    const updatedReward = await Reward.findOneAndUpdate(
+      { chatId },
+      { $set: { "inviteFriend.redeem": true } }
+    );
 
-    await Reward.findOneAndUpdate({ chatId }, { $set: { inviteFriend: true } });
+    await User.findOneAndUpdate(
+      { userId: chatId },
+      { $inc: { coins: updatedReward.inviteFriend.reward } }
+    );
 
     return res.status(200).json({ status: true, message: "Task completed" });
   } catch (err) {}

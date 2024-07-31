@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Invite = require("../models/inviteModels");
+const Reward = require("../models/dailyRewardModel");
+
+const dailyReward = require("../constant/dailyReward");
 
 const registerUser = async (req, res) => {
   try {
@@ -14,8 +17,16 @@ const registerUser = async (req, res) => {
     let checkUser = await User.findOne({ userId });
 
     if (!checkUser) {
-      checkUser = new User({ userId, userName });
+      checkUser = new User({ userId, userName, joinDate: String(Date.now()) });
       await checkUser.save();
+
+      const addReward = new Reward({
+        chatId: userId,
+        youtube: dailyReward.youtube,
+        telegram: dailyReward.telegram,
+        twitter: dailyReward.twitter,
+      });
+      await addReward.save();
 
       if (referralCode || referralCode !== "") {
         const referralChatId = referralCode.split("_")[1];

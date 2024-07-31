@@ -15,7 +15,7 @@ const subscribeTelegram = async (req, res) => {
 
     const checkUserReward = await Reward.findOne({
       chatId,
-      telegramLinkCheck: true,
+      "telegram.redeem": true,
     });
 
     if (checkUserReward) {
@@ -24,7 +24,7 @@ const subscribeTelegram = async (req, res) => {
 
     const checkReward = await Reward.findOneAndUpdate(
       { chatId, telegramLinkCheck: false },
-      { telegramLinkCheck: telegramConfirm },
+      { $set: { "telegram.redeem": telegramConfirm } },
       { new: true }
     );
 
@@ -34,7 +34,7 @@ const subscribeTelegram = async (req, res) => {
 
     const updateReward = new Reward({
       chatId,
-      telegramLinkCheck: telegramConfirm,
+      "telegram.redeem": telegramConfirm,
     });
 
     await updateReward.save();
@@ -43,7 +43,7 @@ const subscribeTelegram = async (req, res) => {
       const updateUserCoin = await User.findOneAndUpdate(
         { userId: chatId, telegramLinkCheck: true },
         {
-          $inc: { coins: checkReward.telegramCoins },
+          $inc: { coins: updateReward.telegram.reward },
         },
         { new: true }
       );
@@ -92,14 +92,14 @@ const checkXUser = async (req, res) => {
 
     const newTwitterUser = await Reward.findOneAndUpdate(
       { chatId },
-      { twitterId: resData.user_id },
+      { $set: { "twitter.twitterId": resData.user_id } },
       { new: true }
     );
 
     if (!newTwitterUser) {
       const newTwitterUser = new Reward({
         chatId,
-        twitterId: resData.user_id,
+        "twitter.twitterId": resData.user_id,
       });
 
       await newTwitterUser.save();
@@ -147,19 +147,19 @@ const checkXSubscribe = async (req, res) => {
     const followerList = response.data.results;
 
     const checkUserFollow = followerList.some(
-      (item) => item.user_id === checkChatId.twitterId
+      (item) => item.user_id === checkChatId.twitter.twitterId
     );
 
     if (!checkUserFollow)
       return res.status(200).json({
         status: true,
         message: "Task not complete!",
-        xIsSubscribe: checkChatId.twitterLinkCheck,
+        xIsSubscribe: checkChatId.twitter.redeem,
       });
 
     const updateUser = await User.findOneAndUpdate(
       { userId: chatId },
-      { $inc: { coins: checkChatId.twitterCoins } },
+      { $inc: { coins: checkChatId.twitter.reward } },
       { new: true }
     );
 
@@ -170,14 +170,14 @@ const checkXSubscribe = async (req, res) => {
 
     const updatedReward = await Reward.findOneAndUpdate(
       { chatId },
-      { twitterLinkCheck: true },
+      { $set: { "twitter.redeem": true } },
       { new: true }
     );
 
     return res.status(200).json({
       status: true,
       message: "Task completed!",
-      xIsSubscribe: updatedReward.twitterLinkCheck,
+      xIsSubscribe: updatedReward.twitter.redeem,
     });
   } catch (err) {
     return res.status(500).json({
@@ -190,9 +190,9 @@ const checkXSubscribe = async (req, res) => {
 
 const getAllRewardDetail = async (req, res) => {
   try {
-    const coinId = req.chatId;
+    const chatId = req.chatId;
 
-    const getReward = await Reward.findOne({ chatId: coinId });
+    const getReward = await Reward.findOne({ chatId: chatId });
 
     if (!getReward)
       return res
