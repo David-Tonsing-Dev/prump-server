@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
     let checkUser = await User.findOne({ userId });
 
     if (!checkUser) {
-      checkUser = new User({ userId, userName, joinDate: String(Date.now()) });
+      checkUser = new User({ userId, userName, joinDate: new Date() });
       await checkUser.save();
 
       const addReward = new Reward({
@@ -25,6 +25,7 @@ const registerUser = async (req, res) => {
         youtube: dailyReward.youtube,
         telegram: dailyReward.telegram,
         twitter: dailyReward.twitter,
+        everyDayReward: dailyReward.everyDayReward,
       });
       await addReward.save();
 

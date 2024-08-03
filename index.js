@@ -10,6 +10,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 8001;
 
+const { dailyClaimTask } = require("./helper/cronJob");
 const userRoutes = require("./routes/userRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
 const pointRoutes = require("./routes/pointRoutes");
@@ -62,5 +63,6 @@ wss.on("connection", async (ws) => {
 });
 
 server.listen(PORT, () => {
+  dailyClaimTask.start();
   console.log(`Listening to port: ${PORT}`);
 });

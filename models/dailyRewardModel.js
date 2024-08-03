@@ -72,6 +72,12 @@ const mongoose = require("mongoose");
 
 const youtubeSchema = [
   {
+    id: {
+      type: Number,
+    },
+    name: {
+      type: String,
+    },
     link: {
       type: String,
     },
@@ -92,6 +98,9 @@ const youtubeSchema = [
 const everyDayRewardSchema = [
   {
     day: {
+      type: Number,
+    },
+    name: {
       type: String,
     },
     reward: {

@@ -100,6 +100,11 @@ const trackReferral = async (req, res) => {
   }
 };
 
+// testing user
+// 5836642909 ms_rapunzel_1
+// 938150137 mr_goku_1
+// 1566469188 GhostCoder1
+
 const inviteFriendClaim = async (req, res) => {
   try {
     const chatId = req.chatId;

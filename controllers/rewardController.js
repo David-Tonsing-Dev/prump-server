@@ -1,6 +1,10 @@
 const axios = require("axios");
+const moment = require("moment");
 const Reward = require("../models/dailyRewardModel");
 const User = require("../models/userModel");
+const { findDay, isBetween } = require("../constant/momentHelper");
+const { everyDayReward } = require("../constant/dailyReward");
+const dailyReward = require("../constant/dailyReward");
 
 const subscribeTelegram = async (req, res) => {
   try {
@@ -209,9 +213,190 @@ const getAllRewardDetail = async (req, res) => {
   }
 };
 
+const getDailyReward = async (req, res) => {
+  try {
+    let { day } = req.params;
+    day = parseInt(day);
+    const chatId = req.chatId;
+
+    if (!day || day === "")
+      return res
+        .status(400)
+        .json({ status: false, message: "Could not find which day!" });
+
+    const checkUser = await Reward.findOne({ chatId });
+
+    if (!checkUser)
+      return res
+        .status(400)
+        .json({ status: false, message: "Could not found user!" });
+
+    const startDate =
+      day === 1 ? new Date() : checkUser.everyDayReward[0].redeemedTime;
+
+    const endDate = "Thu Aug 03 2024 16:57:48 GMT+0530 (India Standard Time)";
+    const rewardDay = findDay(startDate, endDate);
+    const currentDay = day - 1;
+
+    if (
+      checkUser.everyDayReward[currentDay].day === day &&
+      checkUser.everyDayReward[currentDay].redeem
+    )
+      return res
+        .status(200)
+        .json({ status: false, message: "Already redeemed!" });
+
+    if (rewardDay !== currentDay)
+      return res
+        .status(200)
+        .json({ status: false, message: "Select the current reward day" });
+
+    const updateReward = await Reward.findOneAndUpdate(
+      {
+        chatId,
+        "everyDayReward.day": day,
+      },
+      {
+        $set: {
+          "everyDayReward.$.redeem": true,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    await User.findOneAndUpdate(
+      { userId: chatId },
+      { $inc: { coins: updateReward.everyDayReward[day - 1].reward } }
+    );
+
+    return res
+      .status(200)
+      .json({ status: true, message: "Daily coin rewarded!" });
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error!",
+      error: err.message,
+    });
+  }
+};
+
+const checkDailyClaim = async () => {
+  try {
+    await Reward.updateMany(
+      {
+        everyDayReward: { $elemMatch: { day: 10, redeem: true } },
+      },
+      {
+        $set: {
+          everyDayReward: dailyReward.everyDayReward,
+        },
+      }
+    );
+
+    await Reward.updateMany(
+      {
+        everyDayReward: {
+          $elemMatch: {
+            redeemedTime: moment().subtract(1, "days").format("DD-MM-YYYY"),
+            redeem: false,
+          },
+        },
+      },
+      {
+        $set: {
+          everyDayReward: dailyReward.everyDayReward,
+        },
+      }
+    );
+  } catch (err) {
+    console.log("ERROR::", err.message);
+  }
+};
+
+const checkyoutubeWatch = async (req, res) => {
+  try {
+    const chatId = req.chatId;
+    const { id } = req.params;
+
+    if (!id || id === "undefined")
+      return res
+        .status(400)
+        .json({ status: false, message: "Could not found id!" });
+    const updateReward = await Reward.findOneAndUpdate(
+      { chatId, "youtube.id": id },
+      { $set: { "youtube.$.redeemedTime": moment().format("DD-MM-YYYY") } }
+    );
+
+    if (!updateReward)
+      return res
+        .status(400)
+        .json({ status: false, message: "Could not found id!" });
+
+    return res
+      .status(200)
+      .json({ status: true, message: "Updated youtube watch!" });
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error!",
+      error: err.message,
+    });
+  }
+};
+
+const claimYoutubeWatch = async (req, res) => {
+  try {
+    let { id } = req.params;
+    id = parseInt(id);
+    const chatId = req.chatId;
+
+    if (!id || id === "undefined")
+      return res
+        .status(400)
+        .json({ status: false, message: "Could not found id!" });
+
+    const updateReward = await Reward.findOneAndUpdate(
+      {
+        chatId,
+        "youtube.id": id,
+        youtube: { $elemMatch: { redeemedTime: { $ne: "" } } },
+      },
+      { $set: { "youtube.$.redeem": true } },
+      { new: true }
+    );
+
+    if (!updateReward)
+      return res
+        .status(400)
+        .json({ status: false, message: "Watch video first!" });
+
+    await User.findOneAndUpdate(
+      { userId: chatId },
+      { $set: { coins: updateReward.youtube[id - 1].reward } }
+    );
+
+    return res
+      .status(200)
+      .json({ status: true, message: "Youtube watch rewarded!" });
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error!",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   subscribeTelegram,
   checkXUser,
   checkXSubscribe,
   getAllRewardDetail,
+  getDailyReward,
+  checkDailyClaim,
+  checkyoutubeWatch,
+  claimYoutubeWatch,
 };

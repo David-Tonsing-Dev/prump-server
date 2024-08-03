@@ -1,10 +1,23 @@
+const moment = require("moment");
 const dailyReward = {
-  youtube: {
-    link: "https://www.youtube.com/watch?v=K1Wsy1U4yY4",
-    reward: 10000,
-    redeem: false,
-    redeemedTime: "",
-  },
+  youtube: [
+    {
+      id: 1,
+      name: "Who is Prumpkin? The Creator of it.",
+      link: "https://www.youtube.com/watch?v=K1Wsy1U4yY4",
+      reward: 10000,
+      redeem: false,
+      redeemedTime: "",
+    },
+    {
+      id: 2,
+      name: "What are real world asset?",
+      link: "https://www.youtube.com/shorts/fEIffll_ujg",
+      reward: 10000,
+      redeem: false,
+      redeemedTime: "",
+    },
+  ],
   telegram: {
     link: "",
     reward: 10000,
@@ -17,6 +30,88 @@ const dailyReward = {
     redeem: false,
     redeemedTime: "",
   },
+  everyDayReward: [
+    {
+      day: 1,
+      name: "Day 1",
+      reward: 500,
+      redeemedTime: moment().format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 2,
+      name: "Day 2",
+      reward: 1000,
+      redeemedTime: moment().add(1, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 3,
+      name: "Day 3",
+      reward: 2500,
+      redeemedTime: moment().add(2, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 4,
+      name: "Day 4",
+      reward: 5000,
+      redeemedTime: moment().add(3, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 5,
+      name: "Day 5",
+      reward: 15000,
+      redeemedTime: moment().add(4, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 6,
+      name: "Day 6",
+      reward: 25000,
+      redeemedTime: moment().add(5, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 7,
+      name: "Day 7",
+      reward: 100000,
+      redeemedTime: moment().add(6, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 8,
+      name: "Day 8",
+      reward: 500000,
+      redeemedTime: moment().add(7, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 9,
+      name: "Day 9",
+      reward: 1000000,
+      redeemedTime: moment().add(8, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+    {
+      day: 10,
+      name: "Day 10",
+      reward: 5000000,
+      redeemedTime: moment().add(9, "days").format("DD-MM-YYYY"),
+      redeem: false,
+      active: false,
+    },
+  ],
 };
 
 module.exports = dailyReward;
