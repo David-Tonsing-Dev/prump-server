@@ -234,7 +234,7 @@ const getDailyReward = async (req, res) => {
     const startDate =
       day === 1 ? new Date() : checkUser.everyDayReward[0].redeemedTime;
 
-    const endDate = "Thu Aug 03 2024 16:57:48 GMT+0530 (India Standard Time)";
+    const endDate = new Date();
     const rewardDay = findDay(startDate, endDate);
     const currentDay = day - 1;
 
@@ -375,7 +375,7 @@ const claimYoutubeWatch = async (req, res) => {
 
     await User.findOneAndUpdate(
       { userId: chatId },
-      { $set: { coins: updateReward.youtube[id - 1].reward } }
+      { $inc: { coins: updateReward.youtube[id - 1].reward } }
     );
 
     return res
