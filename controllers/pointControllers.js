@@ -5,7 +5,7 @@ const getPoints = async (req, res) => {
   try {
     const { rankId } = req.params;
 
-    const choosenRank = rank.filter((item) => item.id === rankId);
+    const choosenRank = rank.filter((item) => item.name === rankId);
 
     if (!rankId || rankId === "undefined")
       return res

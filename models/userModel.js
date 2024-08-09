@@ -14,6 +14,10 @@ const userSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    rank: {
+      type: Number,
+      default: 1,
+    },
     joinDate: {
       type: String,
     },

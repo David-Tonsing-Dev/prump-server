@@ -5,6 +5,7 @@ const User = require("../models/userModel");
 const { findDay, isBetween } = require("../constant/momentHelper");
 const { everyDayReward } = require("../constant/dailyReward");
 const dailyReward = require("../constant/dailyReward");
+const checkRank = require("../helper/checkRank");
 
 const subscribeTelegram = async (req, res) => {
   try {
@@ -161,7 +162,7 @@ const checkXSubscribe = async (req, res) => {
         xIsSubscribe: checkChatId.twitter.redeem,
       });
 
-    const updateUser = await User.findOneAndUpdate(
+    let updateUser = await User.findOneAndUpdate(
       { userId: chatId },
       { $inc: { coins: checkChatId.twitter.reward } },
       { new: true }
@@ -171,6 +172,16 @@ const checkXSubscribe = async (req, res) => {
       return res
         .status(400)
         .json({ status: false, message: "Could not update reward!" });
+
+    const chkRank = checkRank(updateUser);
+
+    if (chkRank.update) {
+      updateUser = await User.findOneAndUpdate(
+        { userId: chatId },
+        { $set: { rank: chkRank.rank } },
+        { new: true }
+      );
+    }
 
     const updatedReward = await Reward.findOneAndUpdate(
       { chatId },
@@ -231,11 +242,6 @@ const getDailyReward = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Could not found user!" });
 
-    const startDate =
-      day === 1 ? new Date() : checkUser.everyDayReward[0].redeemedTime;
-
-    const endDate = new Date();
-    const rewardDay = findDay(startDate, endDate);
     const currentDay = day - 1;
 
     if (
@@ -246,7 +252,10 @@ const getDailyReward = async (req, res) => {
         .status(200)
         .json({ status: false, message: "Already redeemed!" });
 
-    if (rewardDay !== currentDay)
+    if (
+      checkUser.everyDayReward[currentDay].redeemedTime !==
+      moment().format("DD-MM-YYYY")
+    )
       return res
         .status(200)
         .json({ status: false, message: "Select the current reward day" });
@@ -266,10 +275,23 @@ const getDailyReward = async (req, res) => {
       }
     );
 
-    await User.findOneAndUpdate(
+    let updatedUser = await User.findOneAndUpdate(
       { userId: chatId },
-      { $inc: { coins: updateReward.everyDayReward[day - 1].reward } }
+      { $inc: { coins: updateReward.everyDayReward[day - 1].reward } },
+      {
+        new: true,
+      }
     );
+
+    const chkRank = checkRank(updatedUser);
+
+    if (chkRank.update) {
+      updatedUser = await User.findOneAndUpdate(
+        { userId: chatId },
+        { $set: { rank: chkRank.rank } },
+        { new: true }
+      );
+    }
 
     return res
       .status(200)
@@ -373,10 +395,21 @@ const claimYoutubeWatch = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Watch video first!" });
 
-    await User.findOneAndUpdate(
+    let updatedUser = await User.findOneAndUpdate(
       { userId: chatId },
-      { $inc: { coins: updateReward.youtube[id - 1].reward } }
+      { $inc: { coins: updateReward.youtube[id - 1].reward } },
+      { new: true }
     );
+
+    const chkRank = checkRank(updatedUser);
+
+    if (chkRank.update) {
+      updatedUser = await User.findOneAndUpdate(
+        { userId: chatId },
+        { $set: { rank: chkRank.rank } },
+        { new: true }
+      );
+    }
 
     return res
       .status(200)

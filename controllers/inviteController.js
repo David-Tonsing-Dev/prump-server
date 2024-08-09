@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const Reward = require("../models/dailyRewardModel");
 const dailyReward = require("../constant/dailyReward");
 const generateUniqueCode = require("../constant/uniqueCode");
+const checkRank = require("../helper/checkRank");
 
 const generateLink = async (req, res) => {
   try {
@@ -139,10 +140,21 @@ const inviteFriendClaim = async (req, res) => {
       { $set: { "inviteFriend.redeem": true } }
     );
 
-    await User.findOneAndUpdate(
+    let updatedUser = await User.findOneAndUpdate(
       { userId: chatId },
-      { $inc: { coins: updatedReward.inviteFriend.reward } }
+      { $inc: { coins: updatedReward.inviteFriend.reward } },
+      { new: true }
     );
+
+    const chkRank = checkRank(updatedUser);
+
+    if (chkRank.update) {
+      updatedUser = await User.findOneAndUpdate(
+        { userId: chatId },
+        { $set: { rank: chkRank.rank } },
+        { new: true }
+      );
+    }
 
     return res.status(200).json({ status: true, message: "Task completed" });
   } catch (err) {}

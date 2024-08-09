@@ -4,6 +4,7 @@ const Invite = require("../models/inviteModels");
 const Reward = require("../models/dailyRewardModel");
 
 const dailyReward = require("../constant/dailyReward");
+const ranks = require("../constant/rank");
 
 const registerUser = async (req, res) => {
   try {
@@ -84,7 +85,17 @@ const registerUser = async (req, res) => {
     return res.status(200).json({
       status: true,
       token,
-      user: { userId, userName, coins: checkUser.coins },
+      user: {
+        userId,
+        userName,
+        coins: checkUser.coins,
+        rank: checkUser.rank,
+        rankName: ranks[checkUser.rank - 1].rank,
+        rankRange: {
+          min: ranks[checkUser.rank - 1].min,
+          max: ranks[checkUser.rank - 1].max,
+        },
+      },
     });
   } catch (err) {
     return res.status(500).json({

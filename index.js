@@ -10,6 +10,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 8001;
 
+const checkRank = require("./helper/checkRank");
 const { dailyClaimTask } = require("./helper/cronJob");
 const userRoutes = require("./routes/userRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
@@ -46,11 +47,21 @@ wss.on("connection", async (ws) => {
     const { type, userId, coins } = JSON.parse(message);
     const coin = parseInt(coins);
 
-    const checkUser = await User.findOneAndUpdate(
+    let checkUser = await User.findOneAndUpdate(
       { userId },
       { $inc: { coins: coin } },
       { new: true }
     );
+
+    const chkRank = checkRank(checkUser);
+
+    if (chkRank.update) {
+      checkUser = await User.findOneAndUpdate(
+        { userId },
+        { $set: { rank: chkRank.rank } },
+        { new: true }
+      );
+    }
 
     const getAllUser = await User.find().sort({ coins: -1 });
 
